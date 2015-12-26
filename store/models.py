@@ -5,7 +5,7 @@ from django.db import models
 
 # Create your models here.
 class Transaction(models.Model):
-    clothingType = models.CharField(max_length = 50)
+    name = models.CharField(max_length = 50)
     size = models.CharField(max_length=10,null=True, blank=True)
     pub_date = models.DateTimeField('date published')
     user = models.CharField(max_length=100)
@@ -35,7 +35,6 @@ class Accessory(models.Model):
         verbose_name_plural = "Accessories"
     
     
-           
         
         
 

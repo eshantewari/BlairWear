@@ -6,10 +6,10 @@ from .models import Transaction, Accessory, Clothing
 
 class TransactionAdmin(admin.ModelAdmin):
 	fieldsets = [
-		(None,               {'fields': ['clothingType', 'size' ,'user','cash']}),
+		(None,               {'fields': ['name', 'size' ,'user','cash']}),
 		('Date information', {'fields': ['pub_date']}),
 	]
-	list_display = ('clothingType', 'size' ,'user','cash')
+	list_display = ('name', 'size' ,'user','cash')
 	list_filter = ['pub_date']
 	search_fields = ['pub_date']
 

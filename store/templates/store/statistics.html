@@ -1,0 +1,58 @@
+<form action="{% url 'store:transactions' %}" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Submit" />
+</form>
+
+<br />
+<br />
+
+
+<table border="1" style="width:100%">
+    <thead>
+        <tr>
+            <th>Clothing Type</th>
+            <th>S</th>
+            <th>M</th>        
+            <th>L</th>
+            <th>XL</th>
+            <th>Total</th>
+            <th>Total Cheddar</th>
+        </tr>
+    </thead>
+    
+    {% for row in clothing_table %}
+    <tr>
+        {%for cell in row %}
+        <td>{{cell}}</td>
+        {%endfor%}
+    </tr>    
+    {%endfor%}
+    
+</table>
+<br />
+<br />
+<table border="1" style="width:100%">
+    <thead>
+        <tr>
+            <th>Accessory Type</th>
+            <th>Total Sales</th>
+            <th>Total Cheddar</th>
+        </tr>
+    </thead>
+    
+    {% for row in accessories_table %}
+    <tr>
+        {%for cell in row %}
+        <td>{{cell}}</td>
+        {%endfor%}
+    </tr>    
+    {%endfor%}
+    
+</table>
+
+<br />
+Total Items Sold: {{total_sales}}
+<br />
+Total Bank Puled In: ${{total_bank}}
+

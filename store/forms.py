@@ -1,6 +1,11 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from django.forms.extras.widgets import SelectDateWidget
 from .models import Transaction, Accessory, Clothing
+
+
+class DateForm(forms.Form):
+    date = forms.DateField(required = True, label = 'View statistics since ', widget = SelectDateWidget)
 
 class ClothingForm(forms.Form):
     TYPES = (
