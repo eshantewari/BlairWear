@@ -5,7 +5,8 @@ from .models import Transaction, Accessory, Clothing
 
 
 class DateForm(forms.Form):
-    date = forms.DateField(required = True, label = 'View statistics since ', widget = SelectDateWidget)
+    start_date = forms.DateField(required = True, label = 'View Statistics From ', widget = SelectDateWidget)
+    end_date = forms.DateField(required = True, label = 'To ', widget = SelectDateWidget)
 
 class ClothingForm(forms.Form):
     TYPES = (
@@ -15,32 +16,32 @@ class ClothingForm(forms.Form):
         ('Crewneck', 'Crewneck'),
     )
     SIZES = (
-        ('Small', 'Small'),
-        ('Medium', 'Medium'),
-        ('Large', 'Large'),
-        ('XLarge', 'XLarge'),
+        ('s', 's'),
+        ('m', 'm'),
+        ('l', 'l'),
+        ('xl', 'xl'),
     )
     clothing_type = forms.ChoiceField(choices=TYPES, required=True, label='Clothing Type')
-    size = forms.ChoiceField(choices=SIZES, required=True, label='Sizes')
+    size = forms.ChoiceField(choices=SIZES, required=True, label='Size')
     
     def clean(self):        
         clothingtype  = Clothing.objects.get(name=self.cleaned_data['clothing_type'])
         clothing_size = self.cleaned_data['size']
         error = "The inventory for the selected clothing type-size combination is at 0.  Update and come back. "
-        if clothing_size == 'Small':
-            if clothingtype.small == 0:
+        if clothing_size == 's':
+            if clothingtype.s == 0:
                 raise ValidationError(error)
                 return self.cleaned_data
-        elif clothing_size == 'Medium':
-            if clothingtype.medium == 0:
+        elif clothing_size == 'm':
+            if clothingtype.m == 0:
                 raise ValidationError(error)
                 return self.cleaned_data
-        elif clothing_size == 'Large':
-            if clothingtype.large == 0:
+        elif clothing_size == 'l':
+            if clothingtype.l == 0:
                 raise ValidationError(error)
                 return self.cleaned_data
-        elif clothing_size == 'XLarge':
-            if clothingtype.xlarge == 0:
+        elif clothing_size == 'xl':
+            if clothingtype.xl == 0:
                 raise ValidationError(error)
                 return self.cleaned_data
 

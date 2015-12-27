@@ -16,10 +16,10 @@ class Clothing(models.Model):
     name = models.CharField(max_length=50);
        
     #Inventory Variables
-    small = models.IntegerField(default = 0)
-    medium = models.IntegerField(default = 0)
-    large = models.IntegerField(default = 0)
-    xlarge = models.IntegerField(default = 0)
+    s = models.IntegerField(default = 0)
+    m = models.IntegerField(default = 0)
+    l = models.IntegerField(default = 0)
+    xl = models.IntegerField(default = 0)
     
     price = models.FloatField()
     class Meta:

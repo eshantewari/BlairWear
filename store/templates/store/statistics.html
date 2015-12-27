@@ -1,3 +1,15 @@
+
+
+<head>
+    <title>Statistics</title>
+    <style>
+        td {
+            text-align: center
+        }
+    </style>
+</head>
+
+<body>
 <form action="{% url 'store:transactions' %}" method="post">
     {% csrf_token %}
     {{ form.as_p }}
@@ -6,8 +18,28 @@
 
 <br />
 <br />
-
-
+<table border="1" style="width:100%">
+    <thead>
+        <tr>
+            <th>Item Sold</th>
+            <th>Size</th>
+            <th>Date</th>        
+            <th>Vendor</th>
+            <th>$$</th>
+        </tr>
+    </thead>
+    
+    {% for row in transactions_table %}
+    <tr>
+        {%for cell in row %}
+        <td>{{cell}}</td>
+        {%endfor%}
+    </tr>    
+    {%endfor%}
+    
+</table>
+<br />
+<br />
 <table border="1" style="width:100%">
     <thead>
         <tr>
@@ -54,5 +86,5 @@
 <br />
 Total Items Sold: {{total_sales}}
 <br />
-Total Bank Puled In: ${{total_bank}}
-
+Total Bank Puled In: {{total_bank}}
+</body>

@@ -9,15 +9,15 @@ class TransactionAdmin(admin.ModelAdmin):
 		(None,               {'fields': ['name', 'size' ,'user','cash']}),
 		('Date information', {'fields': ['pub_date']}),
 	]
-	list_display = ('name', 'size' ,'user','cash')
+	list_display = ('name', 'size' ,'user','cash','pub_date')
 	list_filter = ['pub_date']
 	search_fields = ['pub_date']
 
 class ClothingAdmin(admin.ModelAdmin):
     fieldsets = [
-        (None,               {'fields': ['name', 'price' ,'small','medium','large','xlarge']}),
+        (None,               {'fields': ['name', 'price' ,'s','m','l','xl']}),
     ]
-    list_display = ('name', 'price' ,'small','medium','large','xlarge')
+    list_display = ('name', 'price' ,'s','m','l','xl')
     list_filter = ['name']
     search_fields = ['name']
     

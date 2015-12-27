@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import get_object_or_404, render, render_to_response
 from django.http import HttpResponseRedirect
@@ -22,14 +24,14 @@ def clothing(request):
         if form.is_valid():
             clothingtype = Clothing.objects.get(name=form.cleaned_data['clothing_type'])
             clothing_size = form.cleaned_data['size']
-            if clothing_size == 'Small':
-                clothingtype.small -= 1
-            elif clothing_size == 'Medium':
-                clothingtype.medium -= 1
-            elif clothing_size == 'Large':
-                clothingtype.large -= 1
-            elif clothing_size == 'XLarge':
-                clothingtype.xlarge -= 1
+            if clothing_size == 's':
+                clothingtype.s -= 1
+            elif clothing_size == 'm':
+                clothingtype.m -= 1
+            elif clothing_size == 'l':
+                clothingtype.l -= 1
+            elif clothing_size == 'xl':
+                clothingtype.xl -= 1
             
             clothingtype.save()
             
@@ -72,6 +74,7 @@ def accessory(request):
 def transactions(request):
     clothing_table = []
     accessories_table = []
+    transactions_table = []
     total_sales = 0
     total_bank = 0    
     if request.method == 'POST':
@@ -86,8 +89,19 @@ def transactions(request):
             total_accessories = 0
             total_accessory_cash = 0
 
-            date = form.cleaned_data['date']
-            transactions = Transaction.objects.filter(pub_date__range=[date,date.today()])      
+            from_date = form.cleaned_data['start_date']
+            to_date = form.cleaned_data['end_date']
+            
+            transactions = Transaction.objects.filter(pub_date__range=[from_date,datetime.today()])      
+            for transaction in transactions:
+                row = []
+                row.append(transaction.name)
+                row.append(transaction.size)
+                row.append(transaction.pub_date)
+                row.append(transaction.user)
+                row.append('$'+format(transaction.cash,'.2f'))
+                transactions_table.append(row)
+            
             
             clothing_objects = Clothing.objects.all()
             for clothing in clothing_objects:
@@ -96,13 +110,13 @@ def transactions(request):
                 small = medium = large = xlarge = 0
                 for transaction in transactions:
                     if transaction.name == clothing.name:
-                        if transaction.size == 'Small':
+                        if transaction.size == 's':
                             small+=1
-                        if transaction.size == 'Medium':
+                        if transaction.size == 'm':
                             medium+=1
-                        if transaction.size == 'Large':
+                        if transaction.size == 'l':
                             large+=1
-                        if transaction.size == 'XLarge':
+                        if transaction.size == 'xl':
                             xlarge+=1
                 row.append(small)
                 row.append(medium)
@@ -141,13 +155,13 @@ def transactions(request):
             accessories_table.append(['Totals',total_accessories,'$'+format(total_accessory_cash,'.2f')])
             
             total_sales = total_clothing+total_accessories
-            total_bank = total_clothing_cash+total_accessory_cash           
+            total_bank = '$'+format(total_clothing_cash+total_accessory_cash,'.2f')       
             
                 
     else:
         form = DateForm()
             
-    return render_to_response('store/statistics.html',{'form':form,'clothing_table':clothing_table,'accessories_table':accessories_table,'total_sales':total_sales,'total_bank':total_bank},context_instance=RequestContext(request))
+    return render_to_response('store/statistics.html',{'form':form,'transactions_table':transactions_table,'clothing_table':clothing_table,'accessories_table':accessories_table,'total_sales':total_sales,'total_bank':total_bank},context_instance=RequestContext(request))
 
     
     
