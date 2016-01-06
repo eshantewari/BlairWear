@@ -49,7 +49,7 @@ class AccessoryForm(forms.Form):
     TYPES = (
         ('Beanie', 'Beanie'),
     )
-    accessory_type = forms.ChoiceField(choices=TYPES, required=True, label='Accessory Types')
+    accessory_type = forms.ChoiceField(choices=TYPES, required=True, label='Accessory Type')
     
     def clean(self):        
         accessoryType  = Accessory.objects.get(name=self.cleaned_data['accessory_type'])

@@ -3,8 +3,39 @@
 <head>
     <title>Statistics</title>
     <style>
-        td {
+        body
+        {
+            line-height: 1.6em;
+        }
+        
+        #hor-minimalist-a
+        {
+            font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+            font-size: 12px;
+            background: #fff;
+            margin: 10px;
+            width: 200px;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        #hor-minimalist-a th
+        {
+            font-size: 14px;
+            font-weight: normal;
+            color: #039;
+            padding: 10px 8px;
+            border-bottom: 2px solid #6678b1;
             text-align: center
+        }
+        #hor-minimalist-a td
+        {
+            color: black;
+            padding: 9px 8px 0px 8px;
+            text-align: center
+        }
+        #hor-minimalist-a tbody tr:hover td
+        {
+            color: #009;
         }
     </style>
 </head>
@@ -18,14 +49,14 @@
 
 <br />
 <br />
-<table border="1" style="width:100%">
+<table border="1" style="width:80%" id="hor-minimalist-a">
     <thead>
         <tr>
-            <th>Item Sold</th>
-            <th>Size</th>
-            <th>Date</th>        
-            <th>Vendor</th>
-            <th>$$</th>
+            <th scope="col">Item Sold</th>
+            <th scope="col">Size</th>
+            <th scope="col">Date</th>        
+            <th scope="col">Vendor</th>
+            <th scope="col">$$</th>
         </tr>
     </thead>
     
@@ -40,16 +71,16 @@
 </table>
 <br />
 <br />
-<table border="1" style="width:100%">
+<table border="1" style="width:80%" id="hor-minimalist-a">
     <thead>
         <tr>
-            <th>Clothing Type</th>
-            <th>S</th>
-            <th>M</th>        
-            <th>L</th>
-            <th>XL</th>
-            <th>Total</th>
-            <th>Total Cheddar</th>
+            <th scope="col">Clothing Type</th>
+            <th scope="col">S</th>
+            <th scope="col">M</th>        
+            <th scope="col">L</th>
+            <th scope="col">XL</th>
+            <th scope="col">Total</th>
+            <th scope="col">Total Cheddar</th>
         </tr>
     </thead>
     
@@ -64,12 +95,12 @@
 </table>
 <br />
 <br />
-<table border="1" style="width:100%">
+<table border="1" style="width:80%" id="hor-minimalist-a">
     <thead>
         <tr>
-            <th>Accessory Type</th>
-            <th>Total Sales</th>
-            <th>Total Cheddar</th>
+            <th scope="col">Accessory Type</th>
+            <th scope="col">Total Sales</th>
+            <th scope="col">Total Cheddar</th>
         </tr>
     </thead>
     
@@ -87,4 +118,8 @@
 Total Items Sold: {{total_sales}}
 <br />
 Total Bank Puled In: {{total_bank}}
+<br />
+<form action="{% url 'store:index' %}">
+    <input type="submit" value="ET Go Home">
+</form>
 </body>

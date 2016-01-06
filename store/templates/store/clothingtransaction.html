@@ -1,5 +1,12 @@
+<h2>Make Clothing Transaction</h2>
+
+
 <form action="{% url 'store:clothing' %}" method="post">
     {% csrf_token %}
     {{ form.as_p }}
     <input type="submit" value="Submit" />
+</form>
+<br />
+<form action="{% url 'store:index' %}">
+    <input type="submit" value="ET Go Home">
 </form>

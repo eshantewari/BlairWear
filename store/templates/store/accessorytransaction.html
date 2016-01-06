@@ -1,5 +1,11 @@
+<h2>Make Accessory Transaction</h2>
+
 <form action="{% url 'store:accessory' %}" method="post">
     {% csrf_token %}
     {{ form.as_p }}
     <input type="submit" value="Submit" />
+</form>
+<br />
+<form action="{% url 'store:index' %}">
+    <input type="submit" value="ET Go Home">
 </form>
