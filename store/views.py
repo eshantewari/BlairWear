@@ -1,5 +1,8 @@
 from datetime import datetime
 
+from django.utils.dateparse import parse_date
+
+
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import get_object_or_404, render, render_to_response
 from django.http import HttpResponseRedirect
@@ -9,9 +12,10 @@ from django import forms
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.template import RequestContext
+from django.contrib.auth.models import User, Group
 
 from .models import Transaction, Accessory, Clothing
-from .forms import ClothingForm, AccessoryForm, DateForm
+from .forms import ClothingForm, AccessoryForm, DateForm, DeleteTransactionForm
 
 @login_required
 def index(request):
@@ -24,26 +28,31 @@ def clothing(request):
         if form.is_valid():
             clothingtype = Clothing.objects.get(name=form.cleaned_data['clothing_type'])
             clothing_size = form.cleaned_data['size']
-            if clothing_size == 's':
-                clothingtype.s -= 1
-            elif clothing_size == 'm':
-                clothingtype.m -= 1
-            elif clothing_size == 'l':
-                clothingtype.l -= 1
-            elif clothing_size == 'xl':
-                clothingtype.xl -= 1
             
-            clothingtype.save()
+            if 'preview' in request.POST:
+                return render(request, 'store/clothingtransaction.html',{'form':form, 'clothingtype':clothingtype.name, 'clothingsize':clothing_size.upper()})
             
+            if 'submit' in request.POST:
+                if clothing_size == 's':
+                    clothingtype.s -= 1
+                elif clothing_size == 'm':
+                    clothingtype.m -= 1
+                elif clothing_size == 'l':
+                    clothingtype.l -= 1
+                elif clothing_size == 'xl':
+                    clothingtype.xl -= 1
             
-            transaction = Transaction()
-            transaction.pub_date=timezone.now()
-            transaction.name=clothingtype.name
-            transaction.cash = clothingtype.price
-            transaction.user = request.user.get_username()
-            transaction.size=clothing_size
-            transaction.save()            
-            return HttpResponseRedirect(reverse('store:index')) #Go to the index
+                clothingtype.save()
+
+                transaction = Transaction()
+                transaction.pub_date=datetime.now()
+                transaction.name=clothingtype.name
+                transaction.cash = clothingtype.price
+                transaction.user = request.user.get_username()
+                transaction.size=clothing_size
+                transaction.save()
+                request.session['confirmation'] = transaction.getConfirmation()
+                return HttpResponseRedirect(reverse('store:confirmation')) #Go to the index
     else:
         form = ClothingForm()
     
@@ -54,21 +63,29 @@ def accessory(request):
     if request.method == 'POST':
         form = AccessoryForm(request.POST)
         if form.is_valid():
-            accessory_type = Accessory.objects.get(name=form.cleaned_data['accessory_type'])
-            accessory_type.inventory -= 1            
-            accessory_type.save()     
             
-            transaction = Transaction()
-            transaction.pub_date=timezone.now()
-            transaction.name=accessory_type.name
-            transaction.cash = accessory_type.price
-            transaction.user = request.user.get_username()
-            transaction.save()            
-            return HttpResponseRedirect(reverse('store:index')) #Go to the index
+            accessory_type = Accessory.objects.get(name=form.cleaned_data['accessory_type'])
+            
+            if 'preview' in request.POST:
+                return render(request, 'store/accessorytransaction.html',{'form':form, 'accessorytype':accessory_type.name})
+            
+            if 'submit' in request.POST:    
+                accessory_type.inventory -= 1            
+                accessory_type.save()     
+                
+                transaction = Transaction()
+                transaction.pub_date=datetime.now()
+                transaction.name=accessory_type.name
+                transaction.cash = accessory_type.price
+                transaction.user = request.user.get_username()
+                transaction.save()
+                request.session['confirmation'] = transaction.getConfirmation()
+                return HttpResponseRedirect(reverse('store:confirmation')) #Go to the confirmation page
     else:
         form = AccessoryForm()
     
     return render(request, 'store/accessorytransaction.html',{'form':form})
+
 
 @login_required 
 def transactions(request):
@@ -92,7 +109,7 @@ def transactions(request):
             from_date = form.cleaned_data['start_date']
             to_date = form.cleaned_data['end_date']
             
-            transactions = Transaction.objects.filter(pub_date__range=[from_date,datetime.today()])      
+            transactions = Transaction.objects.filter(pub_date__range=[from_date,to_date])      
             for transaction in transactions:
                 row = []
                 row.append(transaction.name)
@@ -163,12 +180,97 @@ def transactions(request):
             
     return render_to_response('store/statistics.html',{'form':form,'transactions_table':transactions_table,'clothing_table':clothing_table,'accessories_table':accessories_table,'total_sales':total_sales,'total_bank':total_bank},context_instance=RequestContext(request))
 
-    
-    
+@login_required
+def choose_dates(request):
+    if request.user.groups.filter(name="Mere Peasants").exists():
+        return HttpResponseRedirect(reverse('store:not_authorized'))
+    if request.method == 'POST':
+        form = DateForm(request.POST)
+        if form.is_valid():
+            request.session['from_date'] = str(form.cleaned_data['start_date'])
+            request.session['to_date'] = str(form.cleaned_data['end_date'])
+            return HttpResponseRedirect(reverse('store:delete_transaction'))         
+    else:
+        form = DateForm()
+        
+    return render(request,'store/choose_dates.html', {'form':form})
+
+@login_required
+def delete_transaction(request):
+    parameters = [{'from_date':parse_date(request.session.get('from_date')), 'to_date':parse_date(request.session.get('to_date'))}]
+    message = ""
+    if request.method == 'POST':
+        form = DeleteTransactionForm(request.POST,data = parameters)
+        if form.is_valid():
+            transaction = form.cleaned_data['transaction']
+            
+            if 'preview' in request.POST:
+                return render(request,'store/delete_transaction.html', {'form':form, 'transaction':transaction})
+            
+            if 'submit' in request.POST:
+                if transaction.size:
+                    clothingtype = Clothing.objects.get(name=transaction.name)
+                    size = transaction.size
+                    if size == 's':
+                        clothingtype.s+=1
+                    if size == 'm':
+                        clothingtype.m+=1
+                    if size == 'l':
+                        clothingtype.l+=1
+                    if size == 'xl':
+                        clothingtype.xl+=1
+                    clothingtype.save()
+                else:
+                    accessorytype = Accessory.objects.get(name=transaction.name)
+                    accessorytype.inventory += 1
+                    accessorytype.save()
+                    
+                message = "Successfully deleted transaction "+str(transaction)                   
+                transaction.delete()
+                form = DeleteTransactionForm(data = parameters)  
+    else:
+        form = DeleteTransactionForm(data = parameters)
+        
+    return render(request,'store/delete_transaction.html', {'form':form, 'message':message})
 
 @login_required
 def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse('store:index'))
 
+@login_required
+def confirmation(request):
+    text = request.session['confirmation']
+    del request.session['confirmation']
+    return render(request, "store/confirmation.html", {'text':text})
+
+@login_required
+def inventory(request):
+    clothing_table = []
+    accessory_table = []
+    
+    clothing = Clothing.objects.all()
+    accessories = Accessory.objects.all()
+    for item in clothing:
+        row = []
+        row.append(item.name.upper())
+        row.append(item.s)
+        row.append(item.m)
+        row.append(item.l)
+        row.append(item.xl)
+        row.append(item.s+item.m+item.l+item.xl)
+        clothing_table.append(row)
+    
+    for item in accessories:
+        row = []
+        row.append(item.name.upper())
+        row.append(item.inventory)
+        accessory_table.append(row)
+
+    return render(request, "store/inventory.html", {'clothing_table':clothing_table,'accessory_table':accessory_table})
+    
+    
+    
+def not_authorized(request):
+    return render(request, "store/not_authorized.html")
 

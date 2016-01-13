@@ -1,11 +1,23 @@
+{% extends "store/base.html" %}
+{% block title %}Accessories{% endblock %}
+{% block content %}
+
 <h2>Make Accessory Transaction</h2>
+
+<h4>
+{%if accessorytype %}
+You are about to vend a {{accessorytype}}.  Complete the purchase if this is your intention.
+{%endif%}
+</h4>
 
 <form action="{% url 'store:accessory' %}" method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <input type="submit" value="Submit" />
+    <input name='preview' type='submit' value = "Preview Purchase"/>
+    <br />
+    <br />
+    
+    <input name='submit' type='submit' value = "Complete Purchase - Preview First!"/>
 </form>
 <br />
-<form action="{% url 'store:index' %}">
-    <input type="submit" value="ET Go Home">
-</form>
+{%endblock%}

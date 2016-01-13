@@ -1,0 +1,25 @@
+{% extends "store/base.html" %}
+{% block title %}Delete Transaction{% endblock %}
+{% block content %}
+
+<h2>Delete Transaction</h2>
+<h4>
+{%if transaction %}
+You are about to delete {{transaction}}.  Proceed if this is your intention.
+{%endif%}
+{%if message %}
+{{message}}
+{%endif%}
+</h4>
+
+
+<form action="{% url 'store:delete_transaction' %}" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input name='preview' type='submit' value = "Preview"/>
+    <br />
+    <br />
+    <input name='submit' type='submit' value = "Delete the Transaction"/>
+</form>
+<br />
+{%endblock%}

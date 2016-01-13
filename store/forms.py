@@ -5,7 +5,7 @@ from .models import Transaction, Accessory, Clothing
 
 
 class DateForm(forms.Form):
-    start_date = forms.DateField(required = True, label = 'View Statistics From ', widget = SelectDateWidget)
+    start_date = forms.DateField(required = True, label = 'View Transactions From ', widget = SelectDateWidget)
     end_date = forms.DateField(required = True, label = 'To ', widget = SelectDateWidget)
 
 class ClothingForm(forms.Form):
@@ -57,3 +57,11 @@ class AccessoryForm(forms.Form):
         if accessoryType.inventory == 0:
             raise ValidationError(error)
             return self.cleaned_data
+        
+class DeleteTransactionForm(forms.Form):
+    def __init__(self,*args,**kwargs):
+        dates = kwargs.pop('data', None)
+        from_date = dates[0]['from_date']    # from_date is the parameter passed from views.py
+        to_date = dates[0]['to_date']
+        super(DeleteTransactionForm, self).__init__(*args,**kwargs)
+        self.fields['transaction'] = forms.ModelChoiceField(Transaction.objects.filter(pub_date__range=[from_date,to_date]))

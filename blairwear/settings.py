@@ -110,7 +110,7 @@ LOGIN_URL = '/accounts/login/'
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC-5'
+TIME_ZONE = 'America/New_York'
 
 USE_I18N = True
 

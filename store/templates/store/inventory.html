@@ -1,0 +1,44 @@
+{% extends "store/base.html" %}
+{% block title %}Order Confirmation{% endblock %}
+{% block content %}
+<h2>Inventory</h2>
+
+<table border="1" style="width:80%" id="hor-minimalist-a">
+    <thead>
+        <tr>
+            <th scope="col">Clothing Type</th>
+            <th scope="col">S</th>
+            <th scope="col">M</th>        
+            <th scope="col">L</th>
+            <th scope="col">XL</th>
+            <th scope="col">Total</th>
+        </tr>
+    </thead>
+    {% for row in clothing_table %}
+    <tr>
+        {%for cell in row %}
+        <td>{{cell}}</td>
+        {%endfor%}
+    </tr>    
+    {%endfor%}
+    
+</table>
+<br />
+<br />
+<table border="1" style="width:80%" id="hor-minimalist-a">
+    <thead>
+        <tr>
+            <th scope="col">Accessory Type</th>
+            <th scope="col">Inventory</th>
+        </tr>
+    </thead>
+    
+    {% for row in accessory_table %}
+    <tr>
+        {%for cell in row %}
+        <td>{{cell}}</td>
+        {%endfor%}
+    </tr>    
+    {%endfor%}
+</table>
+{%endblock%}

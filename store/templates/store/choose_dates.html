@@ -1,0 +1,14 @@
+{% extends "store/base.html" %}
+{% block title %}Date Picker{% endblock %}
+{% block content %}
+
+<h2>Choose Date Range</h2>
+
+<form action="{% url 'store:choose_dates' %}" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input name='submit' type='submit' value = "Submit"/>
+</form>
+<br />
+
+{%endblock%}
