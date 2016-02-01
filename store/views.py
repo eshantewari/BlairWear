@@ -14,6 +14,7 @@ from django.utils import timezone
 from django.template import RequestContext
 from django.contrib.auth.models import User, Group
 from django.contrib.auth import authenticate
+from django.contrib.auth import login as auth_login
 
 from .models import Transaction, Accessory, Clothing
 from .forms import ClothingForm, AccessoryForm, DateForm, DeleteTransactionForm
@@ -27,6 +28,7 @@ def login(request):
     if request.method == 'POST':
         user = authenticate(username = request.POST.get('username'), password = request.POST.get('password'))
         if user is not None:
+            auth_login(request, user)
             return HttpResponseRedirect(reverse('store:index'))
         else:
             message = "Incorrect Username-Password Combination"
