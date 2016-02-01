@@ -1,5 +1,5 @@
 {% extends "store/base.html" %}
-{% block title %}Order Confirmation{% endblock %}
+{% block title %}Inventory{% endblock %}
 {% block content %}
 <h2>Inventory</h2>
 
@@ -8,7 +8,7 @@
         <tr>
             <th scope="col">Clothing Type</th>
             <th scope="col">S</th>
-            <th scope="col">M</th>        
+            <th scope="col">M</th>
             <th scope="col">L</th>
             <th scope="col">XL</th>
             <th scope="col">Total</th>
@@ -19,9 +19,9 @@
         {%for cell in row %}
         <td>{{cell}}</td>
         {%endfor%}
-    </tr>    
+    </tr>
     {%endfor%}
-    
+
 </table>
 <br />
 <br />
@@ -32,13 +32,13 @@
             <th scope="col">Inventory</th>
         </tr>
     </thead>
-    
+
     {% for row in accessory_table %}
     <tr>
         {%for cell in row %}
         <td>{{cell}}</td>
         {%endfor%}
-    </tr>    
+    </tr>
     {%endfor%}
 </table>
 {%endblock%}

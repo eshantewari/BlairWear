@@ -13,6 +13,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.template import RequestContext
 from django.contrib.auth.models import User, Group
+from django.contrib.auth import authenticate
 
 from .models import Transaction, Accessory, Clothing
 from .forms import ClothingForm, AccessoryForm, DateForm, DeleteTransactionForm
@@ -21,6 +22,17 @@ from .forms import ClothingForm, AccessoryForm, DateForm, DeleteTransactionForm
 def index(request):
     return render(request, 'store/index.html')
 
+def login(request):
+    message = ''
+    if request.method == 'POST':
+        user = authenticate(username = request.POST.get('username'), password = request.POST.get('password'))
+        if user is not None:
+            return HttpResponseRedirect(reverse('store:index'))
+        else:
+            message = "Incorrect Username-Password Combination"
+
+    return render(request, 'store/login.html', {'message':message})
+
 @login_required
 def clothing(request):
     if request.method == 'POST':
@@ -28,10 +40,10 @@ def clothing(request):
         if form.is_valid():
             clothingtype = Clothing.objects.get(name=form.cleaned_data['clothing_type'])
             clothing_size = form.cleaned_data['size']
-            
+
             if 'preview' in request.POST:
                 return render(request, 'store/clothingtransaction.html',{'form':form, 'clothingtype':clothingtype.name, 'clothingsize':clothing_size.upper()})
-            
+
             if 'submit' in request.POST:
                 if clothing_size == 's':
                     clothingtype.s -= 1
@@ -41,7 +53,7 @@ def clothing(request):
                     clothingtype.l -= 1
                 elif clothing_size == 'xl':
                     clothingtype.xl -= 1
-            
+
                 clothingtype.save()
 
                 transaction = Transaction()
@@ -55,7 +67,7 @@ def clothing(request):
                 return HttpResponseRedirect(reverse('store:confirmation')) #Go to the index
     else:
         form = ClothingForm()
-    
+
     return render(request, 'store/clothingtransaction.html',{'form':form})
 
 @login_required
@@ -63,16 +75,16 @@ def accessory(request):
     if request.method == 'POST':
         form = AccessoryForm(request.POST)
         if form.is_valid():
-            
+
             accessory_type = Accessory.objects.get(name=form.cleaned_data['accessory_type'])
-            
+
             if 'preview' in request.POST:
                 return render(request, 'store/accessorytransaction.html',{'form':form, 'accessorytype':accessory_type.name})
-            
-            if 'submit' in request.POST:    
-                accessory_type.inventory -= 1            
-                accessory_type.save()     
-                
+
+            if 'submit' in request.POST:
+                accessory_type.inventory -= 1
+                accessory_type.save()
+
                 transaction = Transaction()
                 transaction.pub_date=datetime.now()
                 transaction.name=accessory_type.name
@@ -83,17 +95,17 @@ def accessory(request):
                 return HttpResponseRedirect(reverse('store:confirmation')) #Go to the confirmation page
     else:
         form = AccessoryForm()
-    
+
     return render(request, 'store/accessorytransaction.html',{'form':form})
 
 
-@login_required 
+@login_required
 def transactions(request):
     clothing_table = []
     accessories_table = []
     transactions_table = []
     total_sales = 0
-    total_bank = 0    
+    total_bank = 0
     if request.method == 'POST':
         form = DateForm(request.POST)
         if form.is_valid():
@@ -108,8 +120,8 @@ def transactions(request):
 
             from_date = form.cleaned_data['start_date']
             to_date = form.cleaned_data['end_date']
-            
-            transactions = Transaction.objects.filter(pub_date__range=[from_date,to_date])      
+
+            transactions = Transaction.objects.filter(pub_date__range=[from_date,to_date])
             for transaction in transactions:
                 row = []
                 row.append(transaction.name)
@@ -118,8 +130,8 @@ def transactions(request):
                 row.append(transaction.user)
                 row.append('$'+format(transaction.cash,'.2f'))
                 transactions_table.append(row)
-            
-            
+
+
             clothing_objects = Clothing.objects.all()
             for clothing in clothing_objects:
                 row = []
@@ -142,14 +154,14 @@ def transactions(request):
                 sales = small+medium+large+xlarge
                 row.append(sales)
                 cash = sales*clothing.price
-                row.append('$'+format(cash,'.2f'))                            
+                row.append('$'+format(cash,'.2f'))
                 clothing_table.append(row)
                 total_small += small
                 total_medium += medium
                 total_large += large
                 total_xlarge += xlarge
                 total_clothing_cash += cash
-        
+
 
             accessory_objects = Accessory.objects.all()
             for accessory in accessory_objects:
@@ -159,25 +171,25 @@ def transactions(request):
                 for transaction in transactions:
                     if transaction.name == accessory.name:
                         sales += 1
-   
+
                 row.append(sales)
                 cash = sales*accessory.price
-                row.append('$'+format(cash,'.2f'))                            
+                row.append('$'+format(cash,'.2f'))
                 accessories_table.append(row)
                 total_accessories += sales
                 total_accessory_cash += cash
-            
-            total_clothing = total_small+total_medium+total_large+total_xlarge    
+
+            total_clothing = total_small+total_medium+total_large+total_xlarge
             clothing_table.append(['Totals',total_small,total_medium,total_large,total_xlarge,total_clothing,'$'+format(total_clothing_cash,'.2f')])
             accessories_table.append(['Totals',total_accessories,'$'+format(total_accessory_cash,'.2f')])
-            
+
             total_sales = total_clothing+total_accessories
-            total_bank = '$'+format(total_clothing_cash+total_accessory_cash,'.2f')       
-            
-                
+            total_bank = '$'+format(total_clothing_cash+total_accessory_cash,'.2f')
+
+
     else:
         form = DateForm()
-            
+
     return render_to_response('store/statistics.html',{'form':form,'transactions_table':transactions_table,'clothing_table':clothing_table,'accessories_table':accessories_table,'total_sales':total_sales,'total_bank':total_bank},context_instance=RequestContext(request))
 
 @login_required
@@ -189,10 +201,10 @@ def choose_dates(request):
         if form.is_valid():
             request.session['from_date'] = str(form.cleaned_data['start_date'])
             request.session['to_date'] = str(form.cleaned_data['end_date'])
-            return HttpResponseRedirect(reverse('store:delete_transaction'))         
+            return HttpResponseRedirect(reverse('store:delete_transaction'))
     else:
         form = DateForm()
-        
+
     return render(request,'store/choose_dates.html', {'form':form})
 
 @login_required
@@ -203,10 +215,10 @@ def delete_transaction(request):
         form = DeleteTransactionForm(request.POST,data = parameters)
         if form.is_valid():
             transaction = form.cleaned_data['transaction']
-            
+
             if 'preview' in request.POST:
                 return render(request,'store/delete_transaction.html', {'form':form, 'transaction':transaction})
-            
+
             if 'submit' in request.POST:
                 if transaction.size:
                     clothingtype = Clothing.objects.get(name=transaction.name)
@@ -224,13 +236,13 @@ def delete_transaction(request):
                     accessorytype = Accessory.objects.get(name=transaction.name)
                     accessorytype.inventory += 1
                     accessorytype.save()
-                    
-                message = "Successfully deleted transaction "+str(transaction)                   
+
+                message = "Successfully deleted transaction "+str(transaction)
                 transaction.delete()
-                form = DeleteTransactionForm(data = parameters)  
+                form = DeleteTransactionForm(data = parameters)
     else:
         form = DeleteTransactionForm(data = parameters)
-        
+
     return render(request,'store/delete_transaction.html', {'form':form, 'message':message})
 
 @login_required
@@ -248,7 +260,7 @@ def confirmation(request):
 def inventory(request):
     clothing_table = []
     accessory_table = []
-    
+
     clothing = Clothing.objects.all()
     accessories = Accessory.objects.all()
     for item in clothing:
@@ -260,7 +272,7 @@ def inventory(request):
         row.append(item.xl)
         row.append(item.s+item.m+item.l+item.xl)
         clothing_table.append(row)
-    
+
     for item in accessories:
         row = []
         row.append(item.name.upper())
@@ -268,9 +280,8 @@ def inventory(request):
         accessory_table.append(row)
 
     return render(request, "store/inventory.html", {'clothing_table':clothing_table,'accessory_table':accessory_table})
-    
-    
-    
+
+
+
 def not_authorized(request):
     return render(request, "store/not_authorized.html")
-
