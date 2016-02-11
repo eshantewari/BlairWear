@@ -2,11 +2,11 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.forms.extras.widgets import SelectDateWidget
 from .models import Transaction, Accessory, Clothing
-
+from datetime import datetime
 
 class DateForm(forms.Form):
     start_date = forms.DateField(required = True, label = 'View Transactions From ', widget = SelectDateWidget)
-    end_date = forms.DateField(required = True, label = 'To ', widget = SelectDateWidget)
+    end_date = forms.DateField(default = datetime.now, required = True, label = 'To ', widget = SelectDateWidget)
 
 class ClothingForm(forms.Form):
     TYPES = (
@@ -23,8 +23,8 @@ class ClothingForm(forms.Form):
     )
     clothing_type = forms.ChoiceField(choices=TYPES, required=True, label='Clothing Type')
     size = forms.ChoiceField(choices=SIZES, required=True, label='Size')
-    
-    def clean(self):        
+
+    def clean(self):
         clothingtype  = Clothing.objects.get(name=self.cleaned_data['clothing_type'])
         clothing_size = self.cleaned_data['size']
         error = "The inventory for the selected clothing type-size combination is at 0.  Update and come back. "
@@ -50,14 +50,14 @@ class AccessoryForm(forms.Form):
         ('Beanie', 'Beanie'),
     )
     accessory_type = forms.ChoiceField(choices=TYPES, required=True, label='Accessory Type')
-    
-    def clean(self):        
+
+    def clean(self):
         accessoryType  = Accessory.objects.get(name=self.cleaned_data['accessory_type'])
-        error = "The inventory for the selected accessory type-size combination is at 0.  Update and come back. "
+        error = "The inventory for the selected accessory type is at 0.  If you are holding said accessory, that is problematic. "
         if accessoryType.inventory == 0:
             raise ValidationError(error)
             return self.cleaned_data
-        
+
 class DeleteTransactionForm(forms.Form):
     def __init__(self,*args,**kwargs):
         dates = kwargs.pop('data', None)

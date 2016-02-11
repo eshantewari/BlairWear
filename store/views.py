@@ -211,6 +211,10 @@ def choose_dates(request):
 
 @login_required
 def delete_transaction(request):
+    if not (from_date in request.session and to_date in request.session):
+        return HttpResponseRedirect(reverse('store:choose_dates'))
+    if request.user.groups.filter(name="Mere Peasants").exists():
+        return HttpResponseRedirect(reverse('store:not_authorized'))
     parameters = [{'from_date':parse_date(request.session.get('from_date')), 'to_date':parse_date(request.session.get('to_date'))}]
     message = ""
     if request.method == 'POST':
