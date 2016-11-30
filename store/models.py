@@ -16,7 +16,7 @@ class Transaction(models.Model):
         time_string = str((self.pub_date).strftime('%H:%M'))
         size_string = ""
         if self.size:
-            size_string = self.size+", "
+            size_string = "Size "+self.size.upper()+", "
         return self.name+", "+size_string+date_string+", "+time_string+", "+self.user
 
     def getConfirmation(self):
@@ -40,6 +40,10 @@ class Clothing(models.Model):
     xl = models.IntegerField(default = 0)
 
     price = models.FloatField()
+
+    def __unicode__(self):
+        return self.name
+
     class Meta:
         verbose_name_plural = "Clothing"
 
@@ -49,5 +53,9 @@ class Accessory(models.Model):
     inventory = models.IntegerField(default = 0)
 
     price = models.FloatField()
+
+    def __unicode__(self):
+        return self.name
+    
     class Meta:
         verbose_name_plural = "Accessories"

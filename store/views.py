@@ -1,4 +1,5 @@
 from datetime import datetime
+from datetime import timedelta
 
 from django.utils.dateparse import parse_date
 
@@ -21,7 +22,10 @@ from .forms import ClothingForm, AccessoryForm, DateForm, DeleteTransactionForm
 
 @login_required
 def index(request):
-    return render(request, 'store/index.html')
+    username = request.user.first_name.capitalize()
+    if(username == "Christopher"):
+        username = "Mr. Klein"
+    return render(request, 'store/index.html', {'username':username})
 
 def login(request):
     message = ''
@@ -62,7 +66,7 @@ def clothing(request):
                 transaction.pub_date=datetime.now()
                 transaction.name=clothingtype.name
                 transaction.cash = clothingtype.price
-                transaction.user = request.user.get_username()
+                transaction.user = request.user.first_name.capitalize()
                 transaction.size=clothing_size
                 transaction.save()
                 request.session['confirmation'] = transaction.getConfirmation()
@@ -91,7 +95,7 @@ def accessory(request):
                 transaction.pub_date=datetime.now()
                 transaction.name=accessory_type.name
                 transaction.cash = accessory_type.price
-                transaction.user = request.user.get_username()
+                transaction.user = request.user.first_name.capitalize()
                 transaction.save()
                 request.session['confirmation'] = transaction.getConfirmation()
                 return HttpResponseRedirect(reverse('store:confirmation')) #Go to the confirmation page
@@ -121,9 +125,9 @@ def transactions(request):
             total_accessory_cash = 0
 
             from_date = form.cleaned_data['start_date']
-            to_date = form.cleaned_data['end_date']
+            to_date = form.cleaned_data['end_date'] + timedelta(days = 1)
 
-            transactions = Transaction.objects.filter(pub_date__range=[from_date,to_date])
+            transactions = Transaction.objects.filter(pub_date__range=[from_date,to_date]).order_by('-pub_date')
             for transaction in transactions:
                 row = []
                 row.append(transaction.name)
@@ -192,7 +196,7 @@ def transactions(request):
     else:
         form = DateForm()
 
-    return render_to_response('store/statistics.html',{'form':form,'transactions_table':transactions_table,'clothing_table':clothing_table,'accessories_table':accessories_table,'total_sales':total_sales,'total_bank':total_bank},context_instance=RequestContext(request))
+    return render(request, 'store/statistics.html',{'form':form,'transactions_table':transactions_table,'clothing_table':clothing_table,'accessories_table':accessories_table,'total_sales':total_sales,'total_bank':total_bank})
 
 @login_required
 def choose_dates(request):
@@ -211,7 +215,7 @@ def choose_dates(request):
 
 @login_required
 def delete_transaction(request):
-    if not (from_date in request.session and to_date in request.session):
+    if not ("from_date" in request.session and "to_date" in request.session):
         return HttpResponseRedirect(reverse('store:choose_dates'))
     if request.user.groups.filter(name="Mere Peasants").exists():
         return HttpResponseRedirect(reverse('store:not_authorized'))

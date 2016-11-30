@@ -1,8 +1,9 @@
 from django.utils.cache import get_conditional_response
-from django.utils.http import http_date, parse_http_date_safe
+from django.utils.deprecation import MiddlewareMixin
+from django.utils.http import http_date, parse_http_date_safe, unquote_etag
 
 
-class ConditionalGetMiddleware(object):
+class ConditionalGetMiddleware(MiddlewareMixin):
     """
     Handles conditional GET operations. If the response has an ETag or
     Last-Modified header, and the request has If-None-Match or
@@ -23,7 +24,7 @@ class ConditionalGetMiddleware(object):
         if etag or last_modified:
             return get_conditional_response(
                 request,
-                etag=etag,
+                etag=unquote_etag(etag),
                 last_modified=last_modified,
                 response=response,
             )

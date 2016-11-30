@@ -3,15 +3,17 @@
 {% block content %}
 
 <div>
-    <h2>Get Money</h2>
+    <h2>Hello {{username}}.</h2>
     <ul>
         <li> <a href="{% url 'store:inventory' %}">View Inventory</a> </li>
         <li> <a href="{% url 'store:transactions' %}">View Transactions</a> </li>
         <li> <a href="{% url 'store:clothing' %}">Make Clothing Transaction</a> </li>
         <li> <a href="{% url 'store:accessory' %}">Make Accessory Transaction</a> </li>
         <li> <a href="{% url 'store:choose_dates' %}">Delete Transaction</a> </li>
+        <li> <a href="{% url 'store:password_change' %}">Change Password</a> </li>
         <li> <a href="{% url 'store:logout_view' %}">Logout</a> </li>
     </ul>
+
 </div>
 
 {%endblock%}

@@ -6,22 +6,16 @@ from datetime import datetime
 
 class DateForm(forms.Form):
     start_date = forms.DateField(required = True, label = 'View Transactions From ', widget = SelectDateWidget)
-    end_date = forms.DateField(default = datetime.now, required = True, label = 'To ', widget = SelectDateWidget)
+    end_date = forms.DateField(initial = datetime.now, required = True, label = 'To ', widget = SelectDateWidget)
 
 class ClothingForm(forms.Form):
-    TYPES = (
-        ('Hoodie', 'Hoodie'),
-        ('Sweatpant', 'Sweatpant'),
-        ('Tee', 'Tee'),
-        ('Crewneck', 'Crewneck'),
-    )
     SIZES = (
         ('s', 's'),
         ('m', 'm'),
         ('l', 'l'),
         ('xl', 'xl'),
     )
-    clothing_type = forms.ChoiceField(choices=TYPES, required=True, label='Clothing Type')
+    clothing_type = forms.ModelChoiceField(queryset=Clothing.objects.all(), required=True)
     size = forms.ChoiceField(choices=SIZES, required=True, label='Size')
 
     def clean(self):
@@ -46,14 +40,12 @@ class ClothingForm(forms.Form):
                 return self.cleaned_data
 
 class AccessoryForm(forms.Form):
-    TYPES = (
-        ('Beanie', 'Beanie'),
-    )
-    accessory_type = forms.ChoiceField(choices=TYPES, required=True, label='Accessory Type')
+
+    accessory_type = forms.ModelChoiceField(queryset=Accessory.objects.all(), required=True)
 
     def clean(self):
         accessoryType  = Accessory.objects.get(name=self.cleaned_data['accessory_type'])
-        error = "The inventory for the selected accessory type is at 0.  If you are holding said accessory, that is problematic. "
+        error = "The inventory for the selected accessory type is at 0.  If you are holding said accessory, that is a problem. "
         if accessoryType.inventory == 0:
             raise ValidationError(error)
             return self.cleaned_data

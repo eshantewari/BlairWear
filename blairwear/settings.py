@@ -25,7 +25,10 @@ SECRET_KEY = 'yca=tkf+vfnqhz$+i!f&p8=ikzzkbexv!@fl*g3-+niqo)a7)m'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '.mbhs.edu',  # Allow domain and subdomains
+    '.mbhs.edu.',  # Also allow FQDN and subdomains
+]
 
 
 # Application definition
