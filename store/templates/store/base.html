@@ -2,56 +2,59 @@
 <head>
     <title>{%block title%}{%endblock%}</title>
     <style>
+    /**
+    Style for each non-login page. Read the top comment in the style.css file.
+    */
         body
         {
             font-size: 14px;
             line-height: 1.6em;
         }
-        
+
                 div {
           width: 100%;
         }
-         
+
         h2 {
           font: 400 40px/1.5 Helvetica, Verdana, sans-serif;
           margin: 0;
           padding: 0;
         }
-         
+
         ul {
           list-style-type: none;
           margin: 0;
           padding: 0;
         }
-         
+
         li {
           font: 200 20px/1.5 Helvetica, Verdana, sans-serif;
           border-bottom: 1px solid #ccc;
         }
-         
+
         li:last-child {
           border: none;
         }
-         
+
         li a {
           text-decoration: none;
           color: #000;
           display: block;
           width: 100%;
-         
+
           -webkit-transition: font-size 0.3s ease, background-color 0.3s ease;
           -moz-transition: font-size 0.3s ease, background-color 0.3s ease;
           -o-transition: font-size 0.3s ease, background-color 0.3s ease;
           -ms-transition: font-size 0.3s ease, background-color 0.3s ease;
           transition: font-size 0.3s ease, background-color 0.3s ease;
         }
-         
+
         li a:hover {
           font-size: 30px;
           background: #f6f6f6;
         }
-        
-        
+
+
         #hor-minimalist-a
         {
             font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
@@ -127,7 +130,7 @@
 <body>
     {%block content%}{%endblock%}
     <br />
-    
+
     <a href="{%url 'store:index'%}" class="myButton">Return to Homepage</a>
 </body>
 </html>

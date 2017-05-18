@@ -1,4 +1,9 @@
-/* Base styles */
+/** Note on CSS
+This CSS Only Applies to the Login Page:
+Since I'm terrible and didn't invest the time to work out a CSS issue,
+the rest of the CSS code which applies to every page aside from the login
+is in the base.html file.
+*/
 *, *:after, *:before {
   box-sizing: border-box;
 }
@@ -67,7 +72,7 @@ button {
   padding: 3em;
   border-radius: .25em;
   -webkit-filter: drop-shadow(0 0 2em rgba(0,0,0,0.2));
-  transition: 
+  transition:
     opacity .4s ease-in-out,
     height .4s ease-in-out,
     transform .4s cubic-bezier(0.175, 0.885, 0.32, 1.275),

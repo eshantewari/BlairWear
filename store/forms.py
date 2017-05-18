@@ -4,11 +4,14 @@ from django.forms.extras.widgets import SelectDateWidget
 from .models import Transaction, Accessory, Clothing
 from datetime import datetime
 
+#Form to input start and end dates
 class DateForm(forms.Form):
     start_date = forms.DateField(required = True, label = 'View Transactions From ', widget = SelectDateWidget)
     end_date = forms.DateField(initial = datetime.now, required = True, label = 'To ', widget = SelectDateWidget)
 
+#Form to vend a clothing item
 class ClothingForm(forms.Form):
+    #Dictionary of sizes for the size field
     SIZES = (
         ('s', 's'),
         ('m', 'm'),
@@ -22,6 +25,7 @@ class ClothingForm(forms.Form):
         clothingtype  = Clothing.objects.get(name=self.cleaned_data['clothing_type'])
         clothing_size = self.cleaned_data['size']
         error = "The inventory for the selected clothing type-size combination is at 0.  Update and come back. "
+        #Ensure that the item being sold is registered as in stock in the system
         if clothing_size == 's':
             if clothingtype.s == 0:
                 raise ValidationError(error)
@@ -39,6 +43,7 @@ class ClothingForm(forms.Form):
                 raise ValidationError(error)
                 return self.cleaned_data
 
+#Form to vend an accessory item
 class AccessoryForm(forms.Form):
 
     accessory_type = forms.ModelChoiceField(queryset=Accessory.objects.all(), required=True)
@@ -49,6 +54,8 @@ class AccessoryForm(forms.Form):
         if accessoryType.inventory == 0:
             raise ValidationError(error)
             return self.cleaned_data
+
+#Form to faciliate the transfer of the start and end date between the choose_dates and delete transaction views
 
 class DeleteTransactionForm(forms.Form):
     def __init__(self,*args,**kwargs):
